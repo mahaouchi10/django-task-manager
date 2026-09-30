@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h2>{{ title }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="field">
+            <label for="{{ form.title.id_for_label }}">Titre *</label>
+            {{ form.title }}
+            {{ form.title.errors }}
+        </div>
+        <div class="field">
+            <label for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description }}
+            {{ form.description.errors }}
+        </div>
+        <div class="row">
+            <div class="field">
+                <label for="{{ form.category.id_for_label }}">Catégorie</label>
+                {{ form.category }}
+                {{ form.category.errors }}
+            </div>
+            <div class="field">
+                <label for="{{ form.priority.id_for_label }}">Priorité</label>
+                {{ form.priority }}
+                {{ form.priority.errors }}
+            </div>
+            <div class="field">
+                <label for="{{ form.complexity.id_for_label }}">Complexité (1-5)</label>
+                {{ form.complexity }}
+                {{ form.complexity.errors }}
+            </div>
+            {% if not hide_status %}
+            <div class="field">
+                <label for="{{ form.status.id_for_label }}">Statut</label>
+                {{ form.status }}
+                {{ form.status.errors }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div id="prediction-box" class="prediction">
+            <strong>Prédiction du temps d'achèvement :</strong>
+            <span id="prediction-result">chargement…</span>
+        </div>
+
+        <div class="toolbar">
+            <button type="submit" class="btn">Enregistrer</button>
+            <a class="btn" href="{% url 'task_list' %}">Annuler</a>
+        </div>
+    </form>
+
+    <script>
+        function refreshPrediction() {
+            var category = document.getElementById('{{ form.category.id_for_label }}').value;
+            var priority = document.getElementById('{{ form.priority.id_for_label }}').value;
+            var complexity = document.getElementById('{{ form.complexity.id_for_label }}').value;
+            var box = document.getElementById('prediction-result');
+
+            fetch("{% url 'predict_api' %}?category=" + encodeURIComponent(category)
+                + "&priority=" + encodeURIComponent(priority)
+                + "&complexity=" + encodeURIComponent(complexity))
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.insufficient) {
+                        box.textContent = "Données insuffisantes (" + data.samples
+                            + " tâche(s) terminée(s)). Ajoutez au moins 5 tâches terminées.";
+                    } else {
+                        box.textContent = data.predicted_days + " jours (~" + data.mean_duration
+                            + " j en moyenne) — modèle : " + data.model_label
+                            + " (R²=" + data.r2 + ", RMSE=" + data.rmse + " j)";
+                    }
+                })
+                .catch(function () {
+                    box.textContent = "Prédiction indisponible.";
+                });
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            var ids = ['{{ form.category.id_for_label }}',
+                       '{{ form.priority.id_for_label }}',
+                       '{{ form.complexity.id_for_label }}'];
+            ids.forEach(function (id) {
+                document.getElementById(id).addEventListener('change', refreshPrediction);
+            });
+            refreshPrediction();
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,7 @@
+﻿venv\Scripts\python : Watching for file changes with StatReloader
+Au caractère Ligne:1 : 69
++ ... \atelier1"; venv\Scripts\python manage.py runserver 127.0.0.1:8000 2> ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Watching for fi...th StatReloader:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

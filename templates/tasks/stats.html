@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Statistiques{% endblock %}
+
+{% block extrahead %}
+<link rel="stylesheet" href="{% static 'css/stats.css' %}?v={{ request.session.session_key|default:'nocache' }}&rnd={{ view_name|default:'stats' }}">
+    <script src="{% static 'js/plotly.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="stats-page">
+        <div class="stats-header animate">
+            <h1 class="stats-title">Statistiques</h1>
+            <p class="stats-subtitle">Suivez l’ensemble de votre productivité.</p>
+        </div>
+
+        <!-- KPI -->
+        <div class="kpi-grid">
+            <div class="kpi-card animate">
+                <div class="kpi-icon"><span class="kpi-dot" style="background:#2563eb;"></span></div>
+                <div class="kpi-value">{{ total }}</div>
+                <div class="kpi-label">Total des tâches</div>
+            </div>
+            <div class="kpi-card animate" style="--delay:0.1s">
+                <div class="kpi-icon"><span class="kpi-dot" style="background:#16a34a;"></span></div>
+                <div class="kpi-value">{{ done_count }}</div>
+                <div class="kpi-label">Tâches terminées</div>
+            </div>
+            <div class="kpi-card animate" style="--delay:0.2s">
+                <div class="kpi-icon"><span class="kpi-dot" style="background:#f59e0b;"></span></div>
+                <div class="kpi-value">{{ in_progress }}</div>
+                <div class="kpi-label">Tâches en cours</div>
+            </div>
+            <div class="kpi-card animate" style="--delay:0.3s">
+                <div class="kpi-icon"><span class="kpi-dot" style="background:#0d9488;"></span></div>
+                <div class="kpi-value">{% if avg_duration_days is not None %}{{ avg_duration_days }}{% else %}—{% endif %}</div>
+                <div class="kpi-label">Durée moyenne (jours)</div>
+            </div>
+        </div>
+
+        {% if summary %}
+        <!-- Résumé -->
+        <div class="summary-section animate">
+            <h2 class="stats-subtitle" style="margin-bottom:4px;">Résumé</h2>
+            <p class="stats-subtitle" style="margin-top:0; color:var(--gray-600);">
+                Catégorie la plus fréquente : <strong style="color:var(--color-primary);">
+                    {% if summary.category %}{{ summary.category.label }}{% else %}—{% endif %}
+                </strong>
+                &nbsp;|&nbsp; Priorité la plus fréquente : <strong>
+                    {% if summary.priority %}{{ summary.priority.label }}{% else %}—{% endif %}
+                </strong>
+                &nbsp;|&nbsp; Statut le plus fréquent : <strong>
+                    {% if summary.status %}{{ summary.status.label }}{% else %}—{% endif %}
+                </strong>
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Graphiques -->
+        {% if charts %}
+            <div class="charts-grid">
+                {% for chart in charts %}
+                    <div class="chart-card animate" style="--i:{{ forloop.counter }}">
+                        <div class="chart-header">
+                            <span class="chart-title">{{ chart.title }}</span>
+                            <span class="chart-icon">📊</span>
+                        </div>
+                        <div class="chart-body">{{ chart.html|safe }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state animate">
+                <div class="empty-icon">📊</div>
+                <h3>Aucune donnée pour le moment</h3>
+                <p>Créez des tâches pour voir vos statistiques et visualisations.</p>
+                <a class="btn btn-primary" href="{% url 'task_create' %}">Créer une tâche</a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

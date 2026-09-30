@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+    <h2 style="text-align: center;">Connexion</h2>
+    {% if form.errors %}
+        <p style="color:red">Identifiants invalides.</p>
+    {% endif %}
+    <style>
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .login-form p {
+            margin-bottom: 16px;
+        }
+        .login-form label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+        .login-form input[type="text"],
+        .login-form input[type="password"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        .login-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        .login-form button:hover {
+            opacity: 0.9;
+        }
+    </style>
+
+    <form method="post" class="login-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Se connecter</button>
+    </form>
+{% endblock %}
